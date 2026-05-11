@@ -8,7 +8,6 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
   const url = req.nextUrl;
 
   // Handle subdomain routing (for tenant portfolios)
