@@ -4,6 +4,8 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { AIChat } from "@/components/ai-chat";
 
+export const dynamic = 'force-dynamic';
+
 export default async function PortfolioPage({ params }: { params: Promise<{ subdomain: string }> }) {
   const { subdomain } = await params;
   

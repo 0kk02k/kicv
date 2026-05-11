@@ -1,18 +1,19 @@
-import * as pdf from 'pdf-parse';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import * as pdfParse from 'pdf-parse';
 import { google } from '@ai-sdk/google';
 import { embed, generateObject } from 'ai';
 import { z } from 'zod';
 
 export async function extractTextFromPDF(buffer: Buffer) {
-  // pdf-parse is a CJS module, we need to handle its "default" properly in ESM
-  const parse = ((pdf as unknown) as { default: (b: Buffer) => Promise<{ text: string }> }).default || pdf;
+  // pdf-parse is a CJS module.
+  const parse = (pdfParse as any).default || pdfParse;
   const data = await parse(buffer);
   return data.text;
 }
 
 export async function generateEmbedding(text: string) {
   const { embedding } = await embed({
-    model: google.embedding('text-embedding-004'),
+    model: google.embedding('text-embedding-004') as any,
     value: text,
   });
   return embedding;
@@ -20,7 +21,7 @@ export async function generateEmbedding(text: string) {
 
 export async function extractProjectsFromText(text: string) {
   const { object } = await generateObject({
-    model: google('gemini-1.5-flash'),
+    model: google('gemini-1.5-flash') as any,
     schema: z.object({
       projects: z.array(z.object({
         title: z.string(),
@@ -33,6 +34,6 @@ export async function extractProjectsFromText(text: string) {
     
     TEXT:
     ${text}`,
-  });
+  }) as any;
   return object.projects;
 }
