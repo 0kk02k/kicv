@@ -3,7 +3,7 @@
 import { useChat } from 'ai/react';
 import { useState, useRef, useEffect } from 'react';
 import { Message } from 'ai';
-import { X, Send, User, Bot } from 'lucide-react';
+import { X, Send, Bot } from 'lucide-react';
 
 export function AIChat({ portfolioId, primaryColor }: { portfolioId: number, primaryColor: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -84,7 +84,7 @@ export function AIChat({ portfolioId, primaryColor }: { portfolioId: number, pri
               onChange={handleInputChange}
               placeholder="Frage stellen..."
               className="flex-1 border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2"
-              style={{ '--tw-ring-color': primaryColor } as any}
+              style={{ outlineColor: primaryColor }}
             />
             <button 
               type="submit" 

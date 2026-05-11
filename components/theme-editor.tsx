@@ -3,8 +3,14 @@
 import { useState } from 'react';
 import { updatePortfolioTheme } from '@/lib/actions';
 
-export function ThemeEditor({ initialConfig }: { initialConfig?: any }) {
-  const [config, setConfig] = useState(initialConfig || {
+interface ThemeConfig {
+  primaryColor: string;
+  layout: string;
+  fontFamily: string;
+}
+
+export function ThemeEditor({ initialConfig }: { initialConfig?: ThemeConfig }) {
+  const [config, setConfig] = useState<ThemeConfig>(initialConfig || {
     primaryColor: '#3b82f6',
     layout: 'bento',
     fontFamily: 'Inter',

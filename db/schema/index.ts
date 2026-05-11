@@ -1,4 +1,5 @@
 import { pgTable, serial, text, timestamp, integer, boolean, jsonb, vector } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
@@ -6,6 +7,10 @@ export const users = pgTable('users', {
   email: text('email').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+  portfolios: many(portfolios),
+}));
 
 export const portfolios = pgTable('portfolios', {
   id: serial('id').primaryKey(),
@@ -20,6 +25,15 @@ export const portfolios = pgTable('portfolios', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const portfoliosRelations = relations(portfolios, ({ one, many }) => ({
+  user: one(users, {
+    fields: [portfolios.userId],
+    references: [users.id],
+  }),
+  documents: many(documents),
+  projects: many(projects),
+}));
+
 export const documents = pgTable('documents', {
   id: serial('id').primaryKey(),
   portfolioId: integer('portfolio_id').references(() => portfolios.id).notNull(),
@@ -27,6 +41,13 @@ export const documents = pgTable('documents', {
   metadata: jsonb('metadata'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const documentsRelations = relations(documents, ({ one }) => ({
+  portfolio: one(portfolios, {
+    fields: [documents.portfolioId],
+    references: [portfolios.id],
+  }),
+}));
 
 export const embeddings = pgTable('embeddings', {
   id: serial('id').primaryKey(),
@@ -53,3 +74,10 @@ export const projects = pgTable('projects', {
   tags: jsonb('tags').default([]).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const projectsRelations = relations(projects, ({ one }) => ({
+  portfolio: one(portfolios, {
+    fields: [projects.portfolioId],
+    references: [portfolios.id],
+  }),
+}));

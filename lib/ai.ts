@@ -1,10 +1,12 @@
-import pdf from 'pdf-parse';
+import * as pdf from 'pdf-parse';
 import { google } from '@ai-sdk/google';
 import { embed, generateObject } from 'ai';
 import { z } from 'zod';
 
 export async function extractTextFromPDF(buffer: Buffer) {
-  const data = await pdf(buffer);
+  // pdf-parse is a CJS module, we need to handle its "default" properly in ESM
+  const parse = ((pdf as unknown) as { default: (b: Buffer) => Promise<{ text: string }> }).default || pdf;
+  const data = await parse(buffer);
   return data.text;
 }
 

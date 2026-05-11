@@ -1,7 +1,10 @@
-import { SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignInButton, SignUpButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const { userId } = await auth();
+
   return (
     <main className="flex-1 flex flex-col items-center justify-center text-center px-4">
       <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
@@ -12,23 +15,24 @@ export default function HomePage() {
       </p>
 
       <div className="flex gap-4">
-        <SignedOut>
-          <SignUpButton mode="modal">
-            <button className="bg-primary text-primary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition-opacity">
-              Jetzt kostenlos starten
-            </button>
-          </SignUpButton>
-          <SignInButton mode="modal">
-            <button className="bg-secondary text-secondary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition-opacity">
-              Login
-            </button>
-          </SignInButton>
-        </SignedOut>
-        <SignedIn>
+        {!userId ? (
+          <>
+            <SignUpButton mode="modal">
+              <button className="bg-primary text-primary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition-opacity">
+                Jetzt kostenlos starten
+              </button>
+            </SignUpButton>
+            <SignInButton mode="modal">
+              <button className="bg-secondary text-secondary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition-opacity">
+                Login
+              </button>
+            </SignInButton>
+          </>
+        ) : (
           <Link href="/dashboard" className="bg-primary text-primary-foreground px-8 py-4 rounded-full text-lg font-semibold hover:opacity-90 transition-opacity">
             Zum Dashboard
           </Link>
-        </SignedIn>
+        )}
       </div>
 
       <div className="mt-20 w-full max-w-5xl border rounded-2xl shadow-2xl overflow-hidden bg-card">

@@ -26,7 +26,13 @@ export async function getOrCreateUser() {
   return user;
 }
 
-export async function updatePortfolioTheme(config: any) {
+export interface ThemeConfig {
+  primaryColor: string;
+  layout: string;
+  fontFamily: string;
+}
+
+export async function updatePortfolioTheme(config: ThemeConfig) {
   const { userId: clerkId } = await auth();
   if (!clerkId) throw new Error('Unauthorized');
 
@@ -94,7 +100,7 @@ export async function processCVUpload(formData: FormData) {
     const extractedProjects = await extractProjectsFromText(text);
     if (extractedProjects.length > 0) {
       await db.insert(projects).values(
-        extractedProjects.map(p => ({
+        extractedProjects.map((p: { title: string, description: string, tags: string[] }) => ({
           portfolioId: portfolio.id,
           title: p.title,
           description: p.description,

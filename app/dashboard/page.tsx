@@ -8,8 +8,10 @@ import { db } from "@/db";
 import { portfolios } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
+import { ThemeConfig } from "@/lib/actions";
+
 export default async function DashboardPage() {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   if (!userId) {
     redirect("/");
@@ -33,7 +35,7 @@ export default async function DashboardPage() {
           <h1 className="text-4xl font-bold tracking-tight">Dein KI-Portfolio</h1>
           <p className="text-muted-foreground mt-1">Verwalte deine Seite und trainiere deinen KI-Agenten.</p>
         </div>
-        <UserButton afterSignOutUrl="/" />
+        <UserButton />
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -54,7 +56,7 @@ export default async function DashboardPage() {
         </div>
 
         <div className="space-y-10">
-          <ThemeEditor initialConfig={portfolio?.themeConfig} />
+          <ThemeEditor initialConfig={portfolio?.themeConfig as ThemeConfig | undefined} />
           
           <div className="border rounded-xl p-6 bg-card shadow-sm">
             <h2 className="text-xl font-bold mb-4">Analytics-Snapshot</h2>

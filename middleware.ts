@@ -7,8 +7,8 @@ const isPublicRoute = createRouteMatcher([
   "/p/(.*)", // Public portfolios
 ]);
 
-export default clerkMiddleware((auth, req) => {
-  const { userId } = auth();
+export default clerkMiddleware(async (auth, req) => {
+  const { userId } = await auth();
   const url = req.nextUrl;
 
   // Handle subdomain routing (for tenant portfolios)
@@ -24,7 +24,7 @@ export default clerkMiddleware((auth, req) => {
   }
 
   if (!isPublicRoute(req)) {
-    auth().protect();
+    (await auth()).protect();
   }
 });
 

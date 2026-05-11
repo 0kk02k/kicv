@@ -1,11 +1,11 @@
 import { db } from "@/db";
-import { portfolios, users, projects } from "@/db/schema";
+import { portfolios, projects } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { AIChat } from "@/components/ai-chat";
 
-export default async function PortfolioPage({ params }: { params: { subdomain: string } }) {
-  const subdomain = params.subdomain;
+export default async function PortfolioPage({ params }: { params: Promise<{ subdomain: string }> }) {
+  const { subdomain } = await params;
   
   const portfolio = await db.query.portfolios.findFirst({
     where: eq(portfolios.subdomain, subdomain),
