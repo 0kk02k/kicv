@@ -2,11 +2,13 @@ import { neon } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from './schema';
 
-if (!process.env.DATABASE_URL && process.env.NODE_ENV === 'production') {
-  // During build we might not have the DB URL, but we don't want to crash
-  // unless we are actually trying to query the DB.
-  console.warn('DATABASE_URL is missing. Database queries will fail.');
+const databaseUrl = process.env.DATABASE_URL;
+
+if (!databaseUrl && process.env.NODE_ENV === 'production') {
+  console.warn('DATABASE_URL is missing. Database queries will fail at runtime.');
 }
 
-const sql = neon(process.env.DATABASE_URL || 'postgres://dummy:dummy@localhost:5432/dummy');
+// Lazy initialization is not strictly necessary with drizzle-orm/neon-http, 
+// but we ensure we don't pass an empty string to neon() which could cause immediate issues.
+const sql = neon(databaseUrl || 'postgres://placeholder:placeholder@localhost:5432/placeholder');
 export const db = drizzle(sql, { schema });

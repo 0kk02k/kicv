@@ -10,6 +10,8 @@ import { eq } from "drizzle-orm";
 
 import { ThemeConfig } from "@/lib/actions";
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   const { userId } = await auth();
 
