@@ -27,9 +27,8 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   if (!isPublicRoute(req)) {
-    // In Clerk v7, protect() is available directly on the auth() result
-    // or you can call it without awaiting if used within clerkMiddleware
-    await (await auth()).protect();
+    // In Clerk v7 clerkMiddleware, the 'auth' parameter itself has the protect method
+    await auth.protect();
   }
 });
 
