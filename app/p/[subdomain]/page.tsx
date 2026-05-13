@@ -9,12 +9,18 @@ export const dynamic = 'force-dynamic';
 export default async function PortfolioPage({ params }: { params: Promise<{ subdomain: string }> }) {
   const { subdomain } = await params;
   
-  const portfolio = await db.query.portfolios.findFirst({
-    where: eq(portfolios.subdomain, subdomain),
-    with: {
-      user: true,
-    }
-  });
+  let portfolio;
+  try {
+    portfolio = await db.query.portfolios.findFirst({
+      where: eq(portfolios.subdomain, subdomain),
+      with: {
+        user: true,
+      }
+    });
+  } catch (error) {
+    console.error(`Failed to fetch portfolio for subdomain "${subdomain}":`, error);
+    throw new Error('Database connection failed. Please check environment variables.');
+  }
 
   if (!portfolio) {
     notFound();

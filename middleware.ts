@@ -11,27 +11,32 @@ export default clerkMiddleware(async (auth, req) => {
   const url = req.nextUrl;
 
   // Handle subdomain routing (for tenant portfolios)
-  const hostname = req.headers.get("host");
+  // Use req.nextUrl.hostname which is more reliable in Next.js 16
+  const hostname = req.nextUrl.hostname;
   const searchParams = url.searchParams.toString();
   const path = `${url.pathname}${searchParams.length > 0 ? `?${searchParams}` : ""}`;
 
-  // If we have a custom subdomain (not localhost or main domain)
-  // This is a simplified version, in production you'd check against your base domain
-  if (hostname && !hostname.startsWith("localhost") && !hostname.startsWith("your-main-domain.com")) {
+  // Simplified subdomain check
+  // Avoid rewriting for localhost or the main domain
+  const isLocalhost = hostname.includes("localhost");
+  const isMainDomain = hostname === "ai-portfolio.com" || hostname.endsWith(".vercel.app"); 
+
+  if (!isLocalhost && !isMainDomain) {
     const subdomain = hostname.split(".")[0];
-    return NextResponse.rewrite(new URL(`/p/${subdomain}${path}`, req.url));
+    if (subdomain && subdomain !== "www") {
+      return NextResponse.rewrite(new URL(`/p/${subdomain}${path}`, req.url));
+    }
   }
 
   if (!isPublicRoute(req)) {
-    (await auth()).protect();
+    const authObject = await auth();
+    authObject.protect();
   }
 });
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
     '/(api|trpc)(.*)',
   ],
 };
