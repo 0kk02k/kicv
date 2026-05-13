@@ -3,27 +3,46 @@
 import { db } from '@/db';
 import { portfolios, users, documents, embeddings, projects } from '@/db/schema';
 import { eq } from 'drizzle-orm';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { extractTextFromPDF, generateEmbedding, extractProjectsFromText } from './ai';
 
 export async function getOrCreateUser() {
-  const { userId: clerkId, sessionClaims } = await auth();
-  if (!clerkId) return null;
+  try {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) {
+      console.log('getOrCreateUser: No userId found in auth()');
+      return null;
+    }
 
-  let user = await db.query.users.findFirst({
-    where: eq(users.clerkId, clerkId),
-  });
+    console.log(`getOrCreateUser: Checking DB for clerkId: ${clerkId}`);
+    let user = await db.query.users.findFirst({
+      where: eq(users.clerkId, clerkId),
+    });
 
-  if (!user) {
-    const [newUser] = await db.insert(users).values({
-      clerkId,
-      email: (sessionClaims?.email as string) || '',
-    }).returning();
-    user = newUser;
+    if (!user) {
+      console.log('getOrCreateUser: User not found, creating new user');
+      // Fetch full user details from Clerk to get the email
+      const clerkUser = await currentUser();
+      const email = clerkUser?.emailAddresses[0]?.emailAddress || '';
+      
+      if (!email) {
+        console.warn('getOrCreateUser: No email found for Clerk user');
+      }
+
+      const [newUser] = await db.insert(users).values({
+        clerkId,
+        email: email,
+      }).returning();
+      user = newUser;
+      console.log(`getOrCreateUser: New user created with ID: ${user.id}`);
+    }
+
+    return user;
+  } catch (error) {
+    console.error('getOrCreateUser CRASH:', error);
+    throw error;
   }
-
-  return user;
 }
 
 export interface ThemeConfig {
