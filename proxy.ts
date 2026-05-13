@@ -11,13 +11,11 @@ export default clerkMiddleware(async (auth, req) => {
   const url = req.nextUrl;
 
   // Handle subdomain routing (for tenant portfolios)
-  // Use req.nextUrl.hostname which is more reliable in Next.js 16
   const hostname = req.nextUrl.hostname;
   const searchParams = url.searchParams.toString();
   const path = `${url.pathname}${searchParams.length > 0 ? `?${searchParams}` : ""}`;
 
   // Simplified subdomain check
-  // Avoid rewriting for localhost or the main domain
   const isLocalhost = hostname.includes("localhost");
   const isMainDomain = hostname === "ai-portfolio.com" || hostname.endsWith(".vercel.app"); 
 
@@ -29,8 +27,9 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   if (!isPublicRoute(req)) {
-    const authObject = await auth();
-    authObject.protect();
+    // In Clerk v7, protect() is available directly on the auth() result
+    // or you can call it without awaiting if used within clerkMiddleware
+    await (await auth()).protect();
   }
 });
 
